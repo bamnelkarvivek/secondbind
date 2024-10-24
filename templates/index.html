@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Inventory</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="text-center">Book Inventory</h1>
+
+    <!-- Add Book Form -->
+    <form action="/add-book" method="post" class="mb-4">
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="title">Title</label>
+                <input type="text" class="form-control" name="title" required>
+            </div>
+            <div class="form-group col-md-6">
+                <label for="author">Author</label>
+                <input type="text" class="form-control" name="author" required>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="genre">Genre</label>
+                <input type="text" class="form-control" name="genre">
+            </div>
+            <div class="form-group col-md-6">
+                <label for="publication_date">Publication Date</label>
+                <input type="date" class="form-control" name="publication_date" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="isbn">ISBN</label>
+            <input type="text" class="form-control" name="isbn" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Book</button>
+    </form>
+
+    <!-- Filter Form -->
+    <form action="/filter-books" method="get" class="mb-4">
+        <h5>Filter Books</h5>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="title">Title</label>
+                <input type="text" class="form-control" name="title">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="author">Author</label>
+                <input type="text" class="form-control" name="author">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="genre">Genre</label>
+                <input type="text" class="form-control" name="genre">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-secondary">Filter</button>
+    </form>
+
+    <!-- Books List -->
+    <h5>Books List</h5>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Genre</th>
+                <th>Publication Date</th>
+                <th>ISBN</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in books %}
+            <tr>
+                <td>{{ book.title }}</td>
+                <td>{{ book.author }}</td>
+                <td>{{ book.genre }}</td>
+                <td>{{ book.publication_date }}</td>
+                <td>{{ book.isbn }}</td>
+                <td>
+                    <form action="/delete-book/{{ book.id }}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Export Buttons -->
+    <div class="mb-4">
+        <a href="/export-csv" class="btn btn-info">Export as CSV</a>
+        <a href="/export-json" class="btn btn-success">Export as JSON</a>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>

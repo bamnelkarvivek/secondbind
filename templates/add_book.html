@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Book</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Add a New Book</h1>
+
+    <form action="/add-book" method="POST">
+        <input type="text" name="title" placeholder="Title" required>
+        <input type="text" name="author" placeholder="Author" required>
+        <input type="text" name="genre" placeholder="Genre">
+        <input type="date" name="publication_date" placeholder="Publication Date">
+        <input type="text" name="isbn" placeholder="ISBN" required>
+        <button type="submit">Add Book</button>
+    </form>
+
+    <a href="/">Back to Inventory</a>
+</body>
+</html>
