@@ -12,6 +12,12 @@
 <div class="container mt-5">
     <h1 class="text-center">Book Inventory</h1>
 
+    {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+    {% endif %}
+
     <!-- Add Book Form -->
     <form action="/add-book" method="post" class="mb-4">
         <div class="form-row">
@@ -63,7 +69,14 @@
 
     <!-- Books List -->
     <h5>Books List</h5>
-    <table class="table table-striped">
+    <form id="filter-form" method="GET">
+        <input type="text" name="title" placeholder="Title" id="title">
+        <input type="text" name="author" placeholder="Author" id="author">
+        <input type="text" name="genre" placeholder="Genre" id="genre">
+        <button type="button" id="filter-btn">Filter</button>
+    </form>
+
+    <table class="table">
         <thead>
             <tr>
                 <th>Title</th>
@@ -71,26 +84,48 @@
                 <th>Genre</th>
                 <th>Publication Date</th>
                 <th>ISBN</th>
-                <th>Actions</th>
             </tr>
         </thead>
-        <tbody>
-            {% for book in books %}
-            <tr>
-                <td>{{ book.title }}</td>
-                <td>{{ book.author }}</td>
-                <td>{{ book.genre }}</td>
-                <td>{{ book.publication_date }}</td>
-                <td>{{ book.isbn }}</td>
-                <td>
-                    <form action="/delete-book/{{ book.id }}" method="post" style="display:inline;">
-                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
+        <tbody id="book-list">
+            <!-- Rows will be dynamically populated here -->
         </tbody>
     </table>
+
+<script>
+// Function to fetch and display books
+function fetchBooks(title = '', author = '', genre = '') {
+    fetch(`/filter-books?title=${title}&author=${author}&genre=${genre}`)
+        .then(response => response.json())
+        .then(data => {
+            const bookList = document.getElementById('book-list');
+            bookList.innerHTML = ''; // Clear current table rows
+            data.forEach(book => {
+                const row = `<tr>
+                    <td>${book.title}</td>
+                    <td>${book.author}</td>
+                    <td>${book.genre}</td>
+                    <td>${book.publication_date}</td>
+                    <td>${book.isbn}</td>
+                </tr>`;
+                bookList.innerHTML += row;
+            });
+        });
+}
+
+// Fetch all books on page load
+document.addEventListener('DOMContentLoaded', function() {
+    fetchBooks();
+});
+
+// Filter books when the button is clicked
+document.getElementById('filter-btn').addEventListener('click', function() {
+    const title = document.getElementById('title').value;
+    const author = document.getElementById('author').value;
+    const genre = document.getElementById('genre').value;
+
+    fetchBooks(title, author, genre);
+});
+</script>
 
     <!-- Export Buttons -->
     <div class="mb-4">

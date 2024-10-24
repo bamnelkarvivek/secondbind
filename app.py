@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from sqlalchemy.exc import IntegrityError
 import csv, json
 from flask import Response
 import os
@@ -35,25 +36,28 @@ def index():
     return render_template('index.html', books=books)
 
 
-@app.route('/add-book', methods=['GET', 'POST'])
+@app.route('/add-book', methods=['POST'])
 def add_book():
-    if request.method == 'POST':
-        title = request.form['title']
-        author = request.form['author']
-        genre = request.form['genre']
-        publication_date_str = request.form['publication_date']
-        isbn = request.form['isbn']
+    title = request.form['title']
+    author = request.form['author']
+    genre = request.form['genre']
+    publication_date_str = request.form['publication_date']
+    isbn = request.form['isbn']
 
-        # Convert publication_date from string to date object
-        publication_date = datetime.strptime(publication_date_str, '%Y-%m-%d').date() if publication_date_str else None
+    # Convert the string to a date object
+    publication_date = datetime.strptime(publication_date_str, '%Y-%m-%d').date()
 
-        new_book = Book(title=title, author=author, genre=genre, publication_date=publication_date, isbn=isbn)
+    new_book = Book(title=title, author=author, genre=genre, publication_date=publication_date, isbn=isbn)
+
+    try:
         db.session.add(new_book)
         db.session.commit()
-
         return redirect('/')
-    return render_template('add_book.html')
-
+    except IntegrityError:
+        db.session.rollback()  # Rollback the session to avoid conflicts
+        books = Book.query.all()  # Get all books to display again on the homepage
+        error_message = "A book with this ISBN already exists."
+        return render_template('index.html', books=books, error=error_message)
 
 @app.route('/filter-books', methods=['GET'])
 def filter_books():
@@ -71,8 +75,18 @@ def filter_books():
         query = query.filter_by(genre=genre)
 
     books = query.all()
-    return render_template('books.html', books=books)
 
+    book_list = [
+        {
+            'title': book.title,
+            'author': book.author,
+            'genre': book.genre,
+            'publication_date': book.publication_date.strftime('%Y-%m-%d') if book.publication_date else '',
+            'isbn': book.isbn
+        } for book in books
+    ]
+
+    return jsonify(book_list)
 
 # Export to CSV
 @app.route('/export-csv', methods=['GET'])
