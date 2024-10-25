@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secondbind-app-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: secondbind-app
+  template:
+    metadata:
+      labels:
+        app: secondbind-app
+    spec:
+      containers:
+      - name: secondbind-app
+        image: gcr.io/sturdy-filament-400423/secondbind-app:v1.0.0
+        ports:
+        - containerPort: 5000
+        env:
+        - name: FLASK_APP
+          value: "app.py"
+        - name: FLASK_ENV
+          value: "production"
