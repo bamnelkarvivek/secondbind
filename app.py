@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from sqlalchemy.exc import IntegrityError
+from models import db,Book
 import csv, json
 from flask import Response
 import os
@@ -14,19 +15,9 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'books.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Initialize the database
-db = SQLAlchemy(app)
-
-
-# Database Model for Inventory
-class Book(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(255), nullable=False)
-    author = db.Column(db.String(255), nullable=False)
-    genre = db.Column(db.String(100))
-    publication_date = db.Column(db.Date)
-    isbn = db.Column(db.String(13), unique=True, nullable=False)
-
+db.init_app(app)  # Initialize the database with the app
+with app.app_context():  # Create a context for the app
+    db.create_all()  # Create all database tables
 
 # Routes for the frontend and backend
 @app.route('/')
